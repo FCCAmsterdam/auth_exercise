@@ -1,5 +1,6 @@
 courses and references:
 
 https://www.tutorialspoint.com/expressjs/expressjs_middleware.htm
+http://theholmesoffice.com/mongoose-connection-best-practice/ (see also https://stackoverflow.com/questions/19599543/check-mongoose-connection-state-without-creating-new-connection)
 
 https://www.udemy.com/api-development
