@@ -1,5 +1,7 @@
 var routes = require('express').Router();
 var Person = require('../db/schemas/Person');
+var mw = require('./middleware');
+console.log(mw.easymw)
 
 
 // 1-
@@ -95,7 +97,7 @@ routes.get('/session', function(req, res) {
 });
 
 // 8-
-// Authentication 1: simple authentication with no third party middleware and simple checking
+// Authentication 1: simple authentication with no third party middleware and simple checking (tutorialpoint)
 var Users = [];
 
 routes.get('/signup1', function(req, res) {
@@ -122,29 +124,19 @@ routes.post('/signup1', function(req, res) {
     }
 });
 
-function checkSignIn(req, res, next) {
-    if (req.session.user) {
-        console.log('in checkSignIn', req.session.user);
-        next(); //If session exists, proceed to page
-    } else {
-        var err = new Error("Not logged in!");
-        console.log(req.session.user);
-        next(err); //Error, trying to access unauthorized page!
-    }
-}
 
-routes.get('/protected_page', checkSignIn, function(req, res) {
+routes.get('/protected_page', mw.easymw, function(req, res) {
     res.render('protected_page', { id: req.session.user.id })
 });
 
 routes.get('/login1', function(req, res) {
-    res.render('login');
+    res.render('login1');
 });
 
 routes.post('/login1', function(req, res) {
     console.log(Users);
     if (!req.body.id || !req.body.password) {
-        res.render('login', { message: "Please enter both id and password" });
+        res.render('login1', { message: "Please enter both id and password" });
     } else {
         Users.filter(function(user) {
             if (user.id === req.body.id && user.password === req.body.password) {
@@ -152,7 +144,7 @@ routes.post('/login1', function(req, res) {
                 res.redirect('/protected_page');
             }
         });
-        res.render('login', { message: "Invalid credentials!" });
+        res.render('login1', { message: "Invalid credentials!" });
     }
 });
 
@@ -169,7 +161,37 @@ routes.use('/protected_page', function(err, req, res, next) {
     res.redirect('/login1');
 });
 
+// 9-
+// Authentication 2: authentication with jsonwebtoken, third party middleware: passport local strategy, 
+//using mongo to keep token safe (lecture 33, Udemy's "API Development" course)
 
+
+routes.get('/signup2', function(req, res) {
+    res.render('signup');
+});
+
+routes.post('/signup2', function(req, res) {
+    Account.register(new Account({ username: req.body.id }, req.body.password, function(err) {
+        if (err) res.send(err);
+        mw.jwtlocalmw.localMongoRegistration;
+    }))
+});
+
+routes.get('/login2', function(req, res) {
+    res.render('login1');
+});
+
+routes.post('/login2', mw.jwtlocalmw.localJWTGeneration);
+
+routes.get('/protected_page', mw.jwtlocalmw.localMongoJWTAuthentication, function(req, res) {
+    res.render('protected_page', { id: req.user.id }) //'user' is defined as part of the generateJwtAccessToken and eventually made persistent and accessible through jwtResponse
+});
+
+
+routes.get('/logout2', mw.jwtlocalmw.localMongoJWTAuthentication, function(req, res) {
+    res.logout();
+    res.status(200).send('Successfully logged out');
+})
 
 
 module.exports = {

@@ -8,7 +8,6 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var multer = require('multer');
 var upload = multer();
-var mongoose = require('mongoose');
 var dbURI = require('./config').data.bodyLimit;
 
 ///////////////////
@@ -45,6 +44,11 @@ auth_exer_app.use(upload.array());
 //mounting public static data; adding a prefix to indicate type
 auth_exer_app.use('/static', express.static('data'));
 
+// passport config
+var passportApp = require('./server/routes/middleware').passportApp;
+auth_exer_app.use(passportApp.initialize());
+
+
 //auth_exer_app.get('/', function(req, res) {
 //    res.send("Hello world!");
 //});
@@ -56,7 +60,13 @@ auth_exer_app.use('/', routes);
 //*** TEST AREA ***//
 //////////////////
 
+/////////////////////
+//*** REVEALING ***//
+/////////////////////
 
+module.exports = {
+    hola: 1,
+}
 
 //////////////////
 //*** SERVER ***//
