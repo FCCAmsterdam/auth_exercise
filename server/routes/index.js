@@ -1,7 +1,7 @@
 var routes = require('express').Router();
 var Person = require('../db/schemas/Person');
 var mw = require('./middleware');
-console.log(mw.easymw)
+console.log(mw.easymw);
 
 
 // 1-
@@ -45,7 +45,7 @@ routes.post('/person', function(req, res) {
 
     if (!personInfo.name || !personInfo.age || !personInfo.nationality) {
         res.render('show_message', {
-            message: "Sorry, you provided worng info",
+            message: "Sorry, you provided wrong info",
             type: "error"
         });
     } else {
@@ -91,14 +91,16 @@ routes.get('/session', function(req, res) {
         req.session.page_views++;
         res.send("You visited this page " + req.session.page_views + " times");
     } else {
-        req.session.page_views = 1;
+        req.session.page_views = 1; //setting first value; page_views is an attribute we are declaring
         res.send("Welcome to this page for the first time!");
     }
 });
 
 // 8-
 // Authentication 1: simple authentication with no third party middleware and simple checking (tutorialpoint)
-var Users = [];
+var Users = [
+    { id: "test01", password: "test01" }
+];
 
 routes.get('/signup1', function(req, res) {
     res.render('signup');
@@ -118,7 +120,7 @@ routes.post('/signup1', function(req, res) {
         });
         var newUser = { id: req.body.id, password: req.body.password };
         Users.push(newUser);
-        console.log(Users);
+        console.log('These are all my current users after a new push', Users);
         req.session.user = newUser;
         res.redirect('/protected_page');
     }
@@ -126,7 +128,7 @@ routes.post('/signup1', function(req, res) {
 
 
 routes.get('/protected_page', mw.easymw, function(req, res) {
-    res.render('protected_page', { id: req.session.user.id })
+    res.render('protected_page', { id: req.session.user.id, sessiondetails: req.session })
 });
 
 routes.get('/login1', function(req, res) {
@@ -134,7 +136,7 @@ routes.get('/login1', function(req, res) {
 });
 
 routes.post('/login1', function(req, res) {
-    console.log(Users);
+    console.log('These are all my current users before login1', Users);
     if (!req.body.id || !req.body.password) {
         res.render('login1', { message: "Please enter both id and password" });
     } else {
@@ -165,14 +167,18 @@ routes.use('/protected_page', function(err, req, res, next) {
 // Authentication 2: authentication with jsonwebtoken, third party middleware: passport local strategy, 
 //using mongo to keep token safe (lecture 33, Udemy's "API Development" course)
 
+//for this example, I registered names as numbers (1,2); ids are those in the database
 
 routes.get('/signup2', function(req, res) {
     res.render('signup');
 });
 
 routes.post('/signup2', function(req, res) {
+    //`Account` is just mounted in passport, which is mounted in main app - see middleware
     Account.register(new Account({ username: req.body.id }, req.body.password, function(err) {
-        if (err) res.send(err);
+        if (err) {
+            res.send(err);
+        };
         mw.jwtlocalmw.localMongoRegistration;
     }))
 });
@@ -184,7 +190,7 @@ routes.get('/login2', function(req, res) {
 routes.post('/login2', mw.jwtlocalmw.localJWTGeneration);
 
 routes.get('/protected_page', mw.jwtlocalmw.localMongoJWTAuthentication, function(req, res) {
-    res.render('protected_page', { id: req.user.id }) //'user' is defined as part of the generateJwtAccessToken and eventually made persistent and accessible through jwtResponse
+    res.render('protected_page', { id: req.user.id, sessiondetails: req.token }) //'user' is defined as part of the generateJwtAccessToken and eventually made persistent and accessible through jwtResponse
 });
 
 

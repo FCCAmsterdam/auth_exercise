@@ -8,7 +8,8 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var multer = require('multer');
 var upload = multer();
-var dbURI = require('./config').data.bodyLimit;
+var helmet = require('helmet');
+var config = require('./config');
 
 ///////////////////
 //*** APP INSTANTIATION ***//
@@ -24,12 +25,15 @@ auth_exer_app.set('views', './client');
 /////////////////////////////////
 //*** APP THIRD PARTY MIDDLEWARE (+ ROUTES) ***//
 ////////////////////////////////
+// security and privacy: helmet
+// https://www.twilio.com/blog/2017/11/securing-your-express-app.html
+auth_exer_app.use(helmet());
 
 // cookies
 auth_exer_app.use(cookieParser());
 
 // sessions
-auth_exer_app.use(session({ secret: "Shh, its a secret!" }));
+auth_exer_app.use(session({ secret: config.session.sessionSecret }));
 
 // for parsing application/json
 auth_exer_app.use(bodyParser.json());

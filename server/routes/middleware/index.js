@@ -36,9 +36,10 @@ passportApp.deserializeUser(Account.deserializeUser());
 // jwt
 var jwt = require('jsonwebtoken');
 var expressjwt = require('express-jwt');
+var config = require('../../../config');
 
-var TOKENTIME = 3600;
-var JWTSECRET = "mysecretJWT"
+var TOKENTIME = config.jwtExpireTime;
+var JWTSECRET = config.jwtSecret;
 
 var generateJwtAccessToken = function(req, res, next) {
     req.token = req.token || {};
@@ -53,7 +54,8 @@ var jwtResponse = function(req, res) {
     })
 }
 
-var localMongoRegistration = passportApp.authenticate('local', { session: false }, function(req, res) { res.status(200).send('Successfully created new account') });
+//why session set to `false`?
+var localMongoRegistration = passportApp.authenticate('local', { session: false }, function(req, res) { res.render('/signup2').status(200).send('Successfully created new account') });
 var localJWTGeneration = passportApp.authenticate('local', { session: false, scope: [] }, generateJwtAccessToken, jwtResponse)
 var localMongoJWTAuthentication = function(req, res, next) { next() }
     /////////////////////
