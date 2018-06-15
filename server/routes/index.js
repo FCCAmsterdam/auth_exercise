@@ -173,14 +173,19 @@ routes.get('/signup2', function(req, res) {
     res.render('signup');
 });
 
+
+var Account = require('../db/schemas/Account');
 routes.post('/signup2', function(req, res) {
     //`Account` is just mounted in passport, which is mounted in main app - see middleware
+    //http://mherman.org/blog/2013/11/11/user-authentication-with-passport-dot-js/
+    console.log(req.body);
     Account.register(new Account({ username: req.body.id }, req.body.password, function(err) {
         if (err) {
             res.send(err);
         };
         mw.jwtlocalmw.localMongoRegistration;
     }))
+
 });
 
 routes.get('/login2', function(req, res) {
