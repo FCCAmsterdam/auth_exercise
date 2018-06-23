@@ -3,6 +3,9 @@ courses and references:
 https://www.tutorialspoint.com/expressjs/expressjs_middleware.htm
 http://theholmesoffice.com/mongoose-connection-best-practice/ (see also https://stackoverflow.com/questions/19599543/check-mongoose-connection-state-without-creating-new-connection)
 
+"Write Modern Web Apps..." by Jeff Dickey
+"Node.js, MongoDB and AngularJS" by Brad Dayley
+
 https://www.udemy.com/api-development
 
 directories: https://stackoverflow.com/questions/3133243/how-do-i-get-the-path-to-the-current-script-with-node-js

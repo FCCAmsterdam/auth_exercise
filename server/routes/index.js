@@ -182,8 +182,12 @@ routes.post('/signup2', function(req, res, next) {
 // Authentication 2b: authentication with simple jsonwebtoken, third party middleware: passport local strategy, 
 //using mongo to keep token safe (lecture 33, Udemy's "API Development" course)
 
+routes.get('/signup3', function(req, res) {
+    res.render('signup');
+});
+
 //var Account = require('../db/schemas/Account');
-//routes.post('/signup2', function(req, res) {
+//routes.post('/signup3', function(req, res) {
 //    //`Account` is just mounted in passport, which is mounted in main app - see middleware
 //    //http://mherman.org/blog/2013/11/11/user-authentication-with-passport-dot-js/
 //    console.log(req.body);
@@ -191,9 +195,8 @@ routes.post('/signup2', function(req, res, next) {
 //        if (err) {
 //            res.send(err);
 //        };
-//        mw.jwtlocalmw.localMongoRegistration;
+//        //mw.jwtlocalmw.localMongoRegistration;
 //    }))
-//
 //});
 
 

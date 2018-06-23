@@ -15,22 +15,22 @@ var checkSignIn = function(req, res, next) {
 // jwt+mongoDB+passport local strategy authorization middleware (Udemy's "API Development")
 // a-
 // instantiating the mounting of the strategy into mongoDB through 'Account' schema
-var passportApp = require('passport');
-var localStrategy = require('passport-local').Strategy;
-
-var Account = require('../../db/schemas/Account');
-passportApp.use(new localStrategy({
-        usernameField: 'accountID',
-        passwordField: 'password'
-    },
-    Account.authenticate()
-));
+//var passportApp = require('passport');
+//var localStrategy = require('passport-local').Strategy;
+//
+//var Account = require('../../db/schemas/Account');
+//passportApp.use(new localStrategy({
+//        usernameField: 'id',
+//        passwordField: 'password'
+//    },
+//    Account.authenticate()
+//));
 
 
 //b-
 // serialization/deserialization
-passportApp.serializeUser(Account.serializeUser());
-passportApp.deserializeUser(Account.deserializeUser());
+//passportApp.serializeUser(Account.serializeUser());
+//passportApp.deserializeUser(Account.deserializeUser());
 
 //c-
 // jwt
@@ -39,6 +39,9 @@ var jwtSimple = require('jwt-simple');
 
 var jwt = require('jsonwebtoken');
 var expressjwt = require('express-jwt');
+
+//var passportApp = require('../../../index.js').passportApp;
+//console.log(passportApp);
 
 var config = require('../../../config');
 //var JWTSECRET = 'secret'; //make it work!!!
@@ -70,23 +73,23 @@ var jwtResponse = function(req, res) {
 }
 
 //why session set to `false`?
-var localMongoRegistration = passportApp.authenticate('local', { session: false }, function(req, res) { res.render('/signup2').status(200).send('Successfully created new account') });
-var localJWTGeneration = passportApp.authenticate('local', { session: false, scope: [] }, generateJwtAccessToken, jwtResponse)
-var localMongoJWTAuthentication = function(req, res, next) {
-        console.log(req);
-        next();
-    }
-    /////////////////////
-    //*** REVEALING ***//
-    /////////////////////
+//var localMongoRegistration = passportApp.authenticate('local', { session: false }, function(req, res) { res.render('signup').status(200).send('Successfully created new account') });
+//var localJWTGeneration = passportApp.authenticate('local', { session: false, scope: [] }, generateJwtAccessToken, jwtResponse)
+//var localMongoJWTAuthentication = function(req, res, next) {
+//        console.log(req);
+//        next();
+//    }
+/////////////////////
+//*** REVEALING ***//
+/////////////////////
 
 module.exports = {
     easymw: checkSignIn,
-    passportApp: passportApp,
+    //passportApp: passportApp,
     jwtlocalmw: {
         generateSimpleJwtAccessToken,
-        generateJwtAccessToken,
-        jwtResponse
+        //generateJwtAccessToken,
+        jwtResponse,
         //localMongoRegistration,
         //localJWTGeneration,
         //localMongoJWTAuthentication

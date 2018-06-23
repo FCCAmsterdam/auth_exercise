@@ -2,8 +2,8 @@ var mongoAPI = require('..');
 var passportLocalMongoose = require('passport-local-mongoose');
 
 var accountSchema = mongoAPI.Schema({
-    //username: String,
-    //password: String
+    username: { type: String },
+    password: { type: String }
 });
 
 accountSchema.plugin(passportLocalMongoose);
