@@ -173,36 +173,43 @@ routes.get('/signup2', function(req, res) {
     res.render('signup');
 });
 
-
-var Account = require('../db/schemas/Account');
-routes.post('/signup2', function(req, res) {
-    //`Account` is just mounted in passport, which is mounted in main app - see middleware
-    //http://mherman.org/blog/2013/11/11/user-authentication-with-passport-dot-js/
-    console.log(req.body);
-    Account.register(new Account({ username: req.body.id }, req.body.password, function(err) {
-        if (err) {
-            res.send(err);
-        };
-        mw.jwtlocalmw.localMongoRegistration;
-    }))
-
-});
-
-routes.get('/login2', function(req, res) {
-    res.render('login1');
-});
-
-routes.post('/login2', mw.jwtlocalmw.localJWTGeneration);
-
-routes.get('/protected_page', mw.jwtlocalmw.localMongoJWTAuthentication, function(req, res) {
-    res.render('protected_page', { id: req.user.id, sessiondetails: req.token }) //'user' is defined as part of the generateJwtAccessToken and eventually made persistent and accessible through jwtResponse
-});
-
-
-routes.get('/logout2', mw.jwtlocalmw.localMongoJWTAuthentication, function(req, res) {
-    res.logout();
-    res.status(200).send('Successfully logged out');
+routes.post('/signup2', function(req, res, next) {
+    //var user = req.body.id;
+    mw.jwtlocalmw.generateJwtAccessToken(req, res, next);
 })
+
+
+//var Account = require('../db/schemas/Account');
+//routes.post('/signup2', function(req, res) {
+//    //`Account` is just mounted in passport, which is mounted in main app - see middleware
+//    //http://mherman.org/blog/2013/11/11/user-authentication-with-passport-dot-js/
+//    console.log(req.body);
+//    Account.register(new Account({ username: req.body.id }, req.body.password, function(err) {
+//        if (err) {
+//            res.send(err);
+//        };
+//        mw.jwtlocalmw.localMongoRegistration;
+//    }))
+//
+//});
+
+
+
+//routes.get('/login2', function(req, res) {
+//    res.render('login1');
+//});
+
+//routes.post('/login2', mw.jwtlocalmw.localJWTGeneration);
+
+//routes.get('/protected_page', mw.jwtlocalmw.localMongoJWTAuthentication, function(req, res) {
+//    res.render('protected_page', { id: req.user.id, sessiondetails: req.token }) //'user' is defined as part of the generateJwtAccessToken and eventually made persistent and accessible through jwtResponse
+//});
+
+
+//routes.get('/logout2', mw.jwtlocalmw.localMongoJWTAuthentication, function(req, res) {
+//    res.logout();
+//    res.status(200).send('Successfully logged out');
+//})
 
 
 module.exports = {

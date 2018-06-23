@@ -34,17 +34,23 @@ passportApp.deserializeUser(Account.deserializeUser());
 
 //c-
 // jwt
-var jwt = require('jsonwebtoken');
-var expressjwt = require('express-jwt');
+//var jwt = require('jsonwebtoken');
+//var expressjwt = require('express-jwt');
+var jwtSimple = require('jwt-simple');
 var config = require('../../../config');
-
-var TOKENTIME = config.jwtExpireTime;
-var JWTSECRET = config.jwtSecret;
+//var JWTSECRET = 'secret'; //make it work!!!
+//console.log(config);
+var JWTSECRET = config.jsonwebtoken.jwtSecret;
+var TOKENTIME = config.jsonwebtoken.jwtExpireTime;
 
 var generateJwtAccessToken = function(req, res, next) {
     req.token = req.token || {};
-    req.token = jwt.sign({ id: req.user.id }, JWTSECRET, { expiresIN: TOKENTIME });
-    next();
+    //req.token = jwt.sign({ id: req.user.id }, JWTSECRET, { expiresIN: TOKENTIME });
+    //console.log(req.body);
+    //console.log(req.body.id, JWTSECRET);
+    var token = jwtSimple.encode({ id: req.body.id }, JWTSECRET);
+    //next();
+    res.json(token);
 }
 
 var jwtResponse = function(req, res) {
@@ -57,7 +63,10 @@ var jwtResponse = function(req, res) {
 //why session set to `false`?
 var localMongoRegistration = passportApp.authenticate('local', { session: false }, function(req, res) { res.render('/signup2').status(200).send('Successfully created new account') });
 var localJWTGeneration = passportApp.authenticate('local', { session: false, scope: [] }, generateJwtAccessToken, jwtResponse)
-var localMongoJWTAuthentication = function(req, res, next) { next() }
+var localMongoJWTAuthentication = function(req, res, next) {
+        console.log(req);
+        next();
+    }
     /////////////////////
     //*** REVEALING ***//
     /////////////////////
@@ -66,9 +75,11 @@ module.exports = {
     easymw: checkSignIn,
     passportApp: passportApp,
     jwtlocalmw: {
-        localMongoRegistration,
-        localJWTGeneration,
-        localMongoJWTAuthentication
+        generateJwtAccessToken,
+        jwtResponse
+        //localMongoRegistration,
+        //localJWTGeneration,
+        //localMongoJWTAuthentication
 
     }
 }
