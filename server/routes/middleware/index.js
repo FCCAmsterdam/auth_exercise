@@ -34,24 +34,33 @@ passportApp.deserializeUser(Account.deserializeUser());
 
 //c-
 // jwt
-//var jwt = require('jsonwebtoken');
-//var expressjwt = require('express-jwt');
+
 var jwtSimple = require('jwt-simple');
+
+var jwt = require('jsonwebtoken');
+var expressjwt = require('express-jwt');
+
 var config = require('../../../config');
 //var JWTSECRET = 'secret'; //make it work!!!
 //console.log(config);
 var JWTSECRET = config.jsonwebtoken.jwtSecret;
 var TOKENTIME = config.jsonwebtoken.jwtExpireTime;
 
-var generateJwtAccessToken = function(req, res, next) {
-    req.token = req.token || {};
-    //req.token = jwt.sign({ id: req.user.id }, JWTSECRET, { expiresIN: TOKENTIME });
+var generateSimpleJwtAccessToken = function(req, res, next) {
     //console.log(req.body);
     //console.log(req.body.id, JWTSECRET);
     var token = jwtSimple.encode({ id: req.body.id }, JWTSECRET);
-    //next();
     res.json(token);
+};
+
+var generateJwtAccessToken = function(req, res, next) {
+    req.token = req.token || {};
+    //req.token = jwt.sign({ id: req.body.id }, JWTSECRET, { expiresIN: TOKENTIME });
+    req.token = jwt.sign({ id: req.body.id }, JWTSECRET);
+    //next();
+    res.json(req.token);
 }
+
 
 var jwtResponse = function(req, res) {
     res.status(200).json({
@@ -75,6 +84,7 @@ module.exports = {
     easymw: checkSignIn,
     passportApp: passportApp,
     jwtlocalmw: {
+        generateSimpleJwtAccessToken,
         generateJwtAccessToken,
         jwtResponse
         //localMongoRegistration,

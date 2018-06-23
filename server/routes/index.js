@@ -164,9 +164,8 @@ routes.use('/protected_page', function(err, req, res, next) {
 });
 
 // 9-
-// Authentication 2: authentication with jsonwebtoken, third party middleware: passport local strategy, 
-//using mongo to keep token safe (lecture 33, Udemy's "API Development" course)
-
+// Authentication 2a: authentication with simple jsonwebtoken
+// based on "Write Modern Web Apps..." by Jeff Dickey
 //for this example, I registered names as numbers (1,2); ids are those in the database
 
 routes.get('/signup2', function(req, res) {
@@ -175,9 +174,13 @@ routes.get('/signup2', function(req, res) {
 
 routes.post('/signup2', function(req, res, next) {
     //var user = req.body.id;
+    //mw.jwtlocalmw.generateSimpleJwtAccessToken(req, res, next);
     mw.jwtlocalmw.generateJwtAccessToken(req, res, next);
 })
 
+// 10-
+// Authentication 2b: authentication with simple jsonwebtoken, third party middleware: passport local strategy, 
+//using mongo to keep token safe (lecture 33, Udemy's "API Development" course)
 
 //var Account = require('../db/schemas/Account');
 //routes.post('/signup2', function(req, res) {
