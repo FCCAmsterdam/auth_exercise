@@ -66,6 +66,14 @@ passportApp.use(new localStrategy({
     Account.authenticate()
 ));
 
+// Configure Passport authenticated session persistence (from https://github.com/passport/express-4.x-local-example/blob/master/server.js).
+//
+// In order to restore authentication state across HTTP requests, Passport needs
+// to serialize users into and deserialize users out of the session.  The
+// typical implementation of this is as simple as supplying the user ID when
+// serializing, and querying the user record by ID from the database when
+// deserializing.
+
 passportApp.serializeUser(Account.serializeUser());
 passportApp.deserializeUser(Account.deserializeUser());
 
@@ -83,8 +91,8 @@ auth_exer_app.use('/', routes);
 //////////////////
 //*** TEST AREA ***//
 //////////////////
-var jwt = require('jsonwebtoken');
-var expressjwt = require('express-jwt');
+var jwt = require('jsonwebtoken'); //produce a token
+var expressjwt = require('express-jwt'); //validates JsonWebTokens and sets req.user
 var JWTSECRET = 'whatsup?';
 var authenticate = expressjwt({ secret: JWTSECRET });
 
@@ -114,7 +122,9 @@ var jwtResponse = function(req, res) {
 //    next();
 //};
 
-auth_exer_app.post('/signup3', function(req, res) {
+
+//see that this router consists in several stages
+auth_exer_app.post('/signup3', function(req, res, next) {
     //http://mherman.org/blog/2013/11/11/user-authentication-with-passport-dot-js/
     console.log(req.body);
 
@@ -122,15 +132,14 @@ auth_exer_app.post('/signup3', function(req, res) {
     console.log(newUser);
     //registering the account for the first time
 
-    //"if registering is successful, please apply passport strategy for registering"s
-    //OJO: a simple syntax error was not captured by the error handling and it was causing a NIGHTMARE
+    //"if registering is successful, please apply passport strategy for registering"
     //Account.register(...) is a instance of the `passport-local-mongoose` plugin on the Account schema .
     // Its shape is so:
     //```
-    // Account.register(instance of Account, passport, callback)
+    // AccountModel.register(instance of AccountModel, password, callback)
     //```
-    // where the callback function accept err and data
-    // it is usually made to detect errors and if no err then to implement an authentication (in this case with passport)
+    // where the callback function accept err and data; if no err then to implement an authentication (in this case with passportJS)
+    //(OJO: a simple syntax error was not captured by the error handling and it was causing a DEBUGGING NIGHTMARE)
 
     Account.register(newUser, req.body.password, function(err, account) {
         if (err) {
@@ -142,14 +151,22 @@ auth_exer_app.post('/signup3', function(req, res) {
         console.log('account ', account);
 
         var callback = function() {
+            console.log('in callback of passportApp authentication');
             res.render('signup').status(200).send('Successfully created new account');
         };
 
         //see passport.authenticate(...) shape:
         //```
-        // passport.authenticate(Strategy, {options})(req,res,callback)
+        // passport.authenticate(Strategy, {options}, function(req,res,next))
         //```
-        passportApp.authenticate('local', { session: false })(req, res, callback);
+        //passportApp.authenticate('local', { session: false, successFlash: 'Welcome!', failureFlash: true })(req, res, callback);
+        passportApp.authenticate('local', { session: false, successFlash: 'Welcome!', failureFlash: true },
+            function(err, user, info) {
+                if (err) { return next(err); }
+                console.log('in callback of passportApp authentication');
+                res.render('signup').status(200).send('Successfully created new account');
+            }
+        )(req, res, next);
     })
 
 });
