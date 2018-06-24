@@ -182,9 +182,9 @@ routes.post('/signup2', function(req, res, next) {
 // Authentication 2b: authentication with simple jsonwebtoken, third party middleware: passport local strategy, 
 //using mongo to keep token safe (lecture 33, Udemy's "API Development" course)
 
-routes.get('/signup3', function(req, res) {
-    res.render('signup');
-});
+//routes.get('/signup3', function(req, res) {
+//    res.render('signup');
+//});
 
 //var Account = require('../db/schemas/Account');
 //routes.post('/signup3', function(req, res) {
