@@ -155,11 +155,16 @@ auth_exer_app.post('/signup3', function(req, res, next) {
             res.render('signup').status(200).send('Successfully created new account');
         };
 
-        //see passport.authenticate(...) shape:
+        //see passport.authenticate(...) shape when used as Custom Callback (see passportJS docs):
         //```
-        // passport.authenticate(Strategy, {options}, function(req,res,next))
+        // passport.authenticate(Strategy, {options})(req,res,callback)
         //```
-        //passportApp.authenticate('local', { session: false, successFlash: 'Welcome!', failureFlash: true })(req, res, callback);
+        //it can be extended as in this case to the following shape:
+        //```
+        // passport.authenticate(Strategy, {options}, callback(err,user,info))(req,res,next)
+        //```
+        //the most important to bear in mind is that when passport is embedded, it requires to be passed req and res and likely a callback as additional parameters
+
         passportApp.authenticate('local', { session: false, successFlash: 'Welcome!', failureFlash: true },
             function(err, user, info) {
                 if (err) { return next(err); }
