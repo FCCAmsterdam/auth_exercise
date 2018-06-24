@@ -164,7 +164,13 @@ auth_exer_app.post('/signup3', function(req, res, next) {
         // passport.authenticate(Strategy, {options}, callback(err,user,info))(req,res,next)
         //```
         //the most important to bear in mind is that when passport is embedded, it requires to be passed req and res and likely a callback as additional parameters
-
+        //Also important here is, as in the docs, that "Note that when using a custom callback, it becomes the application's responsibility to establish a session (by calling `req.login()` and send a response."
+        //
+        //See than when called as direct middleware instead, password.authenticate won't need to be provided by parameters as they are sent from the application:
+        //Addtionally, a callback into the method call will be in charge of the session
+        //```
+        // app.post(address, passport.authenticate(strategy, {options}), sessioncallback)
+        //```
         passportApp.authenticate('local', { session: false, successFlash: 'Welcome!', failureFlash: true },
             function(err, user, info) {
                 if (err) { return next(err); }
@@ -182,8 +188,7 @@ auth_exer_app.post('/signup3', function(req, res, next) {
 /////////////////////
 
 module.exports = {
-    hola: 1,
-    passportApp: passportApp
+    hola: 1
 }
 
 //////////////////
