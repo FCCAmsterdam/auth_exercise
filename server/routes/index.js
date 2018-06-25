@@ -179,8 +179,99 @@ routes.post('/signup2', function(req, res, next) {
 })
 
 // 10-
-// Authentication 2b: authentication with simple jsonwebtoken, third party middleware: passport local strategy, 
+// Authentication 2b: authentication with jsonwebtoken, third party middleware: passport local strategy, 
 //using mongo to keep token safe (lecture 33, Udemy's "API Development" course)
+routes.get('/signup3', function(req, res, next) {
+    res.render('signup');
+});
+
+routes.post('/signup3', function(req, res, next) {
+    //http://mherman.org/blog/2013/11/11/user-authentication-with-passport-dot-js/
+    console.log(req.body);
+
+    var newUser = new mw.passportAppconfig.Account({ username: req.body.id });
+    console.log(newUser);
+    //registering the account for the first time
+
+    //"if registering is successful, please apply passport strategy for registering"
+    //Account.register(...) is a instance of the `passport-local-mongoose` plugin on the Account schema .
+    // Its shape is so:
+    //```
+    // AccountModel.register(instance of AccountModel, password, callback)
+    //```
+    // where the callback function accept err and data; if no err then to implement an authentication (in this case with passportJS)
+    //(OJO: a simple syntax error was not captured by the error handling and it was causing a DEBUGGING NIGHTMARE)
+
+    mw.passportAppconfig.Account.register(newUser, req.body.password, function(err, account) {
+        if (err) {
+            res.send(err);
+        };
+
+        //if not errors, AUTHENTICATE
+
+        console.log('account ', account);
+
+        var callback = function() {
+            console.log('in callback of passportApp authentication');
+            res.render('signup').status(200).send('Successfully created new account');
+        };
+
+        //see passport.authenticate(...) shape when used as Custom Callback (see passportJS docs):
+        //```
+        // passport.authenticate(Strategy, {options})(req,res,callback)
+        //```
+        //it can be extended as in this case to the following shape:
+        //```
+        // passport.authenticate(Strategy, {options}, callback(err,user,info))(req,res,next)
+        //```
+        //the most important to bear in mind is that when passport is embedded, it requires to be passed req and res and likely a callback as additional parameters
+        //Also important here is, as in the docs, that "Note that when using a custom callback, it becomes the application's responsibility to establish a session (by calling `req.login()` and send a response."
+        //
+        //See than when called as direct middleware instead, password.authenticate won't need to be provided by parameters as they are sent from the application:
+        //Addtionally, a callback into the method call will be in charge of the session
+        //```
+        // app.post(address, passport.authenticate(strategy, {options}), sessioncallback)
+        //```
+        mw.passportAppconfig.passportApp.authenticate('local', { session: false, successFlash: 'Welcome!', failureFlash: true },
+            function(err, user, info) {
+                if (err) { return next(err); }
+                console.log('in callback of passportApp authentication');
+                res.render('signup').status(200).send('Successfully created new account');
+            }
+        )(req, res, next);
+    })
+
+});
+
+routes.get('/login3', function(req, res) {
+    res.render('login3');
+});
+
+//login3.pug will point out to /login3
+//also check that for passportJS authenticate to work it will try to find 'username' and 'passport' in the req.body, because those were the names we gave them in the settings 
+routes.post('/login3', mw.passportAppconfig.passportApp.authenticate('local', { session: false, scope: [], successFlash: 'Welcome!', failureFlash: true }), mw.jwtlocalmw.generateJwtAccessToken, mw.jwtlocalmw.jwtResponse);
+
+//the `authenticate` can be only tested using Postman or curl
+//in order to get the real response we need to pass the JWT through the `Authorization` header, like so
+//```
+//Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QwMyIsImlhdCI6MTUyOTg4MDEzMH0.AT_VvdxY2ak6Rrl0r2BmbBTuswc8aWcTdjrBRAQ-sBE
+//```
+//otherwise, we get an Authorization error
+//
+//Trying this directly from the browser will always get an error because there is no way to set the Header
+routes.get('/logout3',
+    function(req, res, next) {
+        console.log(req.body);
+        //console.log(mw.jwtlocalmw.authenticate);
+        next();
+    },
+    mw.jwtlocalmw.authenticate,
+    function(req, res) {
+        req.logout();
+        res.redirect('/login3');
+    });
+
+
 
 //routes.get('/signup3', function(req, res) {
 //    res.render('signup');

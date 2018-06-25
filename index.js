@@ -57,17 +57,16 @@ auth_exer_app.use('/static', express.static('data'));
 
 // a-
 // instantiating the mounting of the strategy into mongoDB through 'Account' schema
-var passportApp = require('passport');
-var Account = require('./server/db/schemas/Account');
+var mw = require('./server/routes/middleware');
 
-auth_exer_app.use(passportApp.initialize());
+auth_exer_app.use(mw.passportAppconfig.passportApp.initialize());
 
 var localStrategy = require('passport-local').Strategy;
-passportApp.use(new localStrategy({
+mw.passportAppconfig.passportApp.use(new localStrategy({
         usernameField: 'username',
         passwordField: 'password'
     },
-    Account.authenticate()
+    mw.passportAppconfig.Account.authenticate()
 ));
 
 // Configure Passport authenticated session persistence (from https://github.com/passport/express-4.x-local-example/blob/master/server.js).
@@ -78,8 +77,8 @@ passportApp.use(new localStrategy({
 // serializing, and querying the user record by ID from the database when
 // deserializing.
 
-passportApp.serializeUser(Account.serializeUser());
-passportApp.deserializeUser(Account.deserializeUser());
+mw.passportAppconfig.passportApp.serializeUser(mw.passportAppconfig.Account.serializeUser());
+mw.passportAppconfig.passportApp.deserializeUser(mw.passportAppconfig.Account.deserializeUser());
 
 
 // registering mongoDB for its use in the local strategy
@@ -95,128 +94,128 @@ auth_exer_app.use('/', routes);
 //////////////////
 //*** TEST AREA ***//
 //////////////////
-var jwt = require('jsonwebtoken'); //produce a token
-var expressjwt = require('express-jwt'); //validates JsonWebTokens and sets req.user
-var JWTSECRET = 'whatsup?';
-var authenticate = expressjwt({ secret: JWTSECRET });
+// var jwt = require('jsonwebtoken'); //produce a token
+// var expressjwt = require('express-jwt'); //validates JsonWebTokens and sets req.user
+// var JWTSECRET = 'whatsup?';
+// var authenticate = expressjwt({ secret: JWTSECRET });
 
-var generateJwtAccessToken = function(req, res, next) {
-    console.log('in generateJwt');
-    req.token = req.token || {};
-    //req.token = jwt.sign({ id: req.body.id }, JWTSECRET, { expiresIN: TOKENTIME });
-    req.token = jwt.sign({ username: req.body.username }, JWTSECRET);
-    next();
-    //res.json(req.token);
-};
+// var generateJwtAccessToken = function(req, res, next) {
+//     console.log('in generateJwt');
+//     req.token = req.token || {};
+//     //req.token = jwt.sign({ id: req.body.id }, JWTSECRET, { expiresIN: TOKENTIME });
+//     req.token = jwt.sign({ username: req.body.username }, JWTSECRET);
+//     next();
+//     //res.json(req.token);
+// };
 
-var jwtResponse = function(req, res, next) {
-    res.status(200).json({
-        user: req.body.id,
-        token: req.token
-    })
-}
-
-
-//var localMongoRegistration = passportApp.authenticate('local', { session: false })(req, res,
-//    function() {
-//        res.render('signup').status(200).send('Successfully created new account');
-//    });
-//var localJWTGeneration = passportApp.authenticate('local', { session: false, scope: [] }, generateJwtAccessToken, jwtResponse)
-//var localMongoJWTAuthentication = function(req, res, next) {
-//    console.log(req);
-//    next();
-//};
+// var jwtResponse = function(req, res, next) {
+//     res.status(200).json({
+//         user: req.body.id,
+//         token: req.token
+//     })
+// }
 
 
-//see that this router consists in several stages
-auth_exer_app.get('/signup3', function(req, res) {
-    res.render('signup');
-});
+// //var localMongoRegistration = passportApp.authenticate('local', { session: false })(req, res,
+// //    function() {
+// //        res.render('signup').status(200).send('Successfully created new account');
+// //    });
+// //var localJWTGeneration = passportApp.authenticate('local', { session: false, scope: [] }, generateJwtAccessToken, jwtResponse)
+// //var localMongoJWTAuthentication = function(req, res, next) {
+// //    console.log(req);
+// //    next();
+// //};
 
-auth_exer_app.post('/signup3', function(req, res, next) {
-    //http://mherman.org/blog/2013/11/11/user-authentication-with-passport-dot-js/
-    console.log(req.body);
 
-    var newUser = new Account({ username: req.body.id });
-    console.log(newUser);
-    //registering the account for the first time
+// //see that this router consists in several stages
+// auth_exer_app.get('/signup3', function(req, res) {
+//     res.render('signup');
+// });
 
-    //"if registering is successful, please apply passport strategy for registering"
-    //Account.register(...) is a instance of the `passport-local-mongoose` plugin on the Account schema .
-    // Its shape is so:
-    //```
-    // AccountModel.register(instance of AccountModel, password, callback)
-    //```
-    // where the callback function accept err and data; if no err then to implement an authentication (in this case with passportJS)
-    //(OJO: a simple syntax error was not captured by the error handling and it was causing a DEBUGGING NIGHTMARE)
+// auth_exer_app.post('/signup3', function(req, res, next) {
+//     //http://mherman.org/blog/2013/11/11/user-authentication-with-passport-dot-js/
+//     console.log(req.body);
 
-    Account.register(newUser, req.body.password, function(err, account) {
-        if (err) {
-            res.send(err);
-        };
+//     var newUser = new Account({ username: req.body.id });
+//     console.log(newUser);
+//     //registering the account for the first time
 
-        //if not errors, AUTHENTICATE
+//     //"if registering is successful, please apply passport strategy for registering"
+//     //Account.register(...) is a instance of the `passport-local-mongoose` plugin on the Account schema .
+//     // Its shape is so:
+//     //```
+//     // AccountModel.register(instance of AccountModel, password, callback)
+//     //```
+//     // where the callback function accept err and data; if no err then to implement an authentication (in this case with passportJS)
+//     //(OJO: a simple syntax error was not captured by the error handling and it was causing a DEBUGGING NIGHTMARE)
 
-        console.log('account ', account);
+//     Account.register(newUser, req.body.password, function(err, account) {
+//         if (err) {
+//             res.send(err);
+//         };
 
-        var callback = function() {
-            console.log('in callback of passportApp authentication');
-            res.render('signup').status(200).send('Successfully created new account');
-        };
+//         //if not errors, AUTHENTICATE
 
-        //see passport.authenticate(...) shape when used as Custom Callback (see passportJS docs):
-        //```
-        // passport.authenticate(Strategy, {options})(req,res,callback)
-        //```
-        //it can be extended as in this case to the following shape:
-        //```
-        // passport.authenticate(Strategy, {options}, callback(err,user,info))(req,res,next)
-        //```
-        //the most important to bear in mind is that when passport is embedded, it requires to be passed req and res and likely a callback as additional parameters
-        //Also important here is, as in the docs, that "Note that when using a custom callback, it becomes the application's responsibility to establish a session (by calling `req.login()` and send a response."
-        //
-        //See than when called as direct middleware instead, password.authenticate won't need to be provided by parameters as they are sent from the application:
-        //Addtionally, a callback into the method call will be in charge of the session
-        //```
-        // app.post(address, passport.authenticate(strategy, {options}), sessioncallback)
-        //```
-        passportApp.authenticate('local', { session: false, successFlash: 'Welcome!', failureFlash: true },
-            function(err, user, info) {
-                if (err) { return next(err); }
-                console.log('in callback of passportApp authentication');
-                res.render('signup').status(200).send('Successfully created new account');
-            }
-        )(req, res, next);
-    })
+//         console.log('account ', account);
 
-});
+//         var callback = function() {
+//             console.log('in callback of passportApp authentication');
+//             res.render('signup').status(200).send('Successfully created new account');
+//         };
 
-auth_exer_app.get('/login3', function(req, res) {
-    res.render('login3');
-});
-//login3.pug will point out to /login3
-//also check that for passportJS authenticate to work it will try to find 'username' and 'passport' in the req.body, because those were the names we gave them in the settings 
-auth_exer_app.post('/login3', passportApp.authenticate('local', { session: false, scope: [], successFlash: 'Welcome!', failureFlash: true }), generateJwtAccessToken, jwtResponse);
+//         //see passport.authenticate(...) shape when used as Custom Callback (see passportJS docs):
+//         //```
+//         // passport.authenticate(Strategy, {options})(req,res,callback)
+//         //```
+//         //it can be extended as in this case to the following shape:
+//         //```
+//         // passport.authenticate(Strategy, {options}, callback(err,user,info))(req,res,next)
+//         //```
+//         //the most important to bear in mind is that when passport is embedded, it requires to be passed req and res and likely a callback as additional parameters
+//         //Also important here is, as in the docs, that "Note that when using a custom callback, it becomes the application's responsibility to establish a session (by calling `req.login()` and send a response."
+//         //
+//         //See than when called as direct middleware instead, password.authenticate won't need to be provided by parameters as they are sent from the application:
+//         //Addtionally, a callback into the method call will be in charge of the session
+//         //```
+//         // app.post(address, passport.authenticate(strategy, {options}), sessioncallback)
+//         //```
+//         passportApp.authenticate('local', { session: false, successFlash: 'Welcome!', failureFlash: true },
+//             function(err, user, info) {
+//                 if (err) { return next(err); }
+//                 console.log('in callback of passportApp authentication');
+//                 res.render('signup').status(200).send('Successfully created new account');
+//             }
+//         )(req, res, next);
+//     })
 
-//the `authenticate` can be only tested using Postman or curl
-//in order to get the real response we need to pass the JWT through the `Authorization` header, like so
-//```
-//Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QwMyIsImlhdCI6MTUyOTg4MDEzMH0.AT_VvdxY2ak6Rrl0r2BmbBTuswc8aWcTdjrBRAQ-sBE
-//```
-//otherwise, we get an Authorization error
-//
-//Trying this directly from the browser will always get an error because there is no way to set the Header
-auth_exer_app.get('/logout3',
-    function(req, res, next) {
-        console.log(req.body);
-        console.log(authenticate);
-        next();
-    },
-    authenticate,
-    function(req, res) {
-        req.logout();
-        res.redirect('/login3');
-    });
+// });
+
+// auth_exer_app.get('/login3', function(req, res) {
+//     res.render('login3');
+// });
+// //login3.pug will point out to /login3
+// //also check that for passportJS authenticate to work it will try to find 'username' and 'passport' in the req.body, because those were the names we gave them in the settings 
+// auth_exer_app.post('/login3', passportApp.authenticate('local', { session: false, scope: [], successFlash: 'Welcome!', failureFlash: true }), generateJwtAccessToken, jwtResponse);
+
+// //the `authenticate` can be only tested using Postman or curl
+// //in order to get the real response we need to pass the JWT through the `Authorization` header, like so
+// //```
+// //Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QwMyIsImlhdCI6MTUyOTg4MDEzMH0.AT_VvdxY2ak6Rrl0r2BmbBTuswc8aWcTdjrBRAQ-sBE
+// //```
+// //otherwise, we get an Authorization error
+// //
+// //Trying this directly from the browser will always get an error because there is no way to set the Header
+// auth_exer_app.get('/logout3',
+//     function(req, res, next) {
+//         console.log(req.body);
+//         console.log(authenticate);
+//         next();
+//     },
+//     authenticate,
+//     function(req, res) {
+//         req.logout();
+//         res.redirect('/login3');
+//     });
 
 
 /////////////////////
