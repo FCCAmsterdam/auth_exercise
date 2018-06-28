@@ -60,6 +60,7 @@ auth_exer_app.use('/static', express.static('data'));
 var mw = require('./server/routes/middleware');
 
 auth_exer_app.use(mw.passportAppconfig.passportApp.initialize());
+auth_exer_app.use(mw.passportAppconfig.passportApp.session());
 
 var localStrategy = require('passport-local').Strategy;
 mw.passportAppconfig.passportApp.use(new localStrategy({
@@ -71,15 +72,15 @@ mw.passportAppconfig.passportApp.use(new localStrategy({
 
 //https://developer.twitter.com/en/docs/twitter-for-websites/log-in-with-twitter/guides/implementing-sign-in-with-twitter
 var twitterStrategy = require('passport-twitter').Strategy;
-console.log(config.twitterOAuth.consumer_key, config.ngrokcallback.callback);
-
+//console.log(config.twitterOAuth.consumer_key, config.ngrokcallback.callback);
 mw.passportAppconfig.passportApp.use(new twitterStrategy({
         consumerKey: config.twitterOAuth.consumer_key,
         consumerSecret: config.twitterOAuth.consumer_secret,
         callbackURL: config.ngrokcallback.callback
     },
     function(token, tokenSecret, profile, done) {
-        console.log("ök!!")
+        console.log("ök!!");
+        done();
     }));
 
 
@@ -112,7 +113,9 @@ auth_exer_app.use('/', routes);
 // Redirect the user to Twitter for authentication.  When complete, Twitter
 // will redirect the user back to the application at
 //   /auth/twitter/callback
-auth_exer_app.get('/auth/twitter', mw.passportAppconfig.passportApp.authenticate('twitter'));
+auth_exer_app.get('/auth/twitter', //from here we call Twitter and set it on in the corresponding callback link
+    mw.passportAppconfig.passportApp.authenticate('twitter')
+);
 
 // Twitter will redirect the user to this URL after approval.  Finish the
 // authentication process by attempting to obtain an access token.  If
@@ -130,17 +133,22 @@ auth_exer_app.get('/auth/twitter', mw.passportAppconfig.passportApp.authenticate
 //    -- https://api.twitter.com/oauth/authorize?oauth_token=h9Xi3QAAAAAAudmNAAABZEXYcy8 //see there is an oauth_token for a requested authorization
 // 5) if authorization is given:
 //    -- 
+
+//here is where authorization is asked; if the requirements for the authentication are available, it runs the Twitter Strategy callback function
+auth_exer_app.get('/request-token',
+    mw.passportAppconfig.passportApp.authenticate('twitter', {
+        'session': true,
+        successRedirect: '/',
+        failureRedirect: '/'
+    }));
+
 // The following errors are possible:
 // - URL considered malware: this is probably because you put the ngrok in the settings but you are not using the ngrok callback to get into twitter but trying to get there through the application instead; this error is POORLY documented!!!
 // - the URL is not recognised: probably you are using standard links in the settings but trying to get in contact with twitter through your app; this error is POORLY documented
 // - Callback URL not approved for this client application: there is a mismatch between the callbacks you have in config and the one you set in the App settings; your ngrok callback in config should match the one you provided as callback in twitter app settings
 // - twitter failed to authorize: if you are trying to link to twitter through ngrok link as recommended, it is probably the keys are incorrect: https://www.quora.com/Why-am-I-getting-the-Could-not-authenticate-you-message-from-Twitters-API
 // - failed to find request token in session: again, all the previous connecting procedure are ok but you don't have a session available; check this link: https://stackoverflow.com/questions/11075629/passport-twitter-failed-to-find-request-token-in-session  
-auth_exer_app.get('/request-token',
-    mw.passportAppconfig.passportApp.authenticate('twitter', {
-        successRedirect: '/',
-        failureRedirect: '/'
-    }));
+// ---- mounting passport.session() into the application will help
 
 
 /////////////////////
