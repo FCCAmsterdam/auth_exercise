@@ -1,5 +1,7 @@
 courses and references:
 
+http://toon.io/understanding-passportjs-authentication-flow/
+https://scotch.io/tutorials/easy-node-authentication-setup-and-local
 https://www.tutorialspoint.com/expressjs/expressjs_middleware.htm
 http://theholmesoffice.com/mongoose-connection-best-practice/ (see also https://stackoverflow.com/questions/19599543/check-mongoose-connection-state-without-creating-new-connection)
 
@@ -7,8 +9,20 @@ http://theholmesoffice.com/mongoose-connection-best-practice/ (see also https://
 "Node.js, MongoDB and AngularJS" by Brad Dayley
 
 https://www.udemy.com/api-development
+https://www.udemy.com/restful-web-api-design-with-nodejs
+https://www.udemy.com/all-about-nodejs
 
 directories: https://stackoverflow.com/questions/3133243/how-do-i-get-the-path-to-the-current-script-with-node-js
 
 other interesting links:
+-- https://www.raymondcamden.com/2017/02/08/using-social-login-with-passport-and-node
 -- https://gist.github.com/joshbirk/1732068
+-- http://mherman.org/blog/2015/09/26/social-authentication-in-node-dot-js-with-passport/
+-- https://www.danielgynn.com/node-auth-part2/
+-- https://truongtx.me/2014/03/29/authentication-in-nodejs-and-expressjs-with-passportjs-part-1
+-- https://hackernoon.com/your-node-js-authentication-tutorial-is-wrong-f1a3bf831a46
+-- https://stackoverflow.com/questions/20533735/anyway-to-set-proxy-setting-in-passportjs
+-- https://stackoverflow.com/questions/33639337/use-passport-js-behind-corporate-firewall-for-facebook-strategy
+-- https://fly.io/articles/setup-google-auth-using-proxy-in-5-minutes/
+-- https://developers.facebook.com/docs/facebook-login/security
+-- https://www.dailycred.com/docs/proxy
