@@ -109,9 +109,23 @@ mw.passportAppconfig.passportApp.use(new twitterStrategy({
 // serializing, and querying the user record by ID from the database when
 // deserializing.
 
-mw.passportAppconfig.passportApp.serializeUser(mw.passportAppconfig.Account.serializeUser());
-mw.passportAppconfig.passportApp.deserializeUser(mw.passportAppconfig.Account.deserializeUser());
+// mw.passportAppconfig.passportApp.serializeUser(mw.passportAppconfig.Account.serializeUser());
+// mw.passportAppconfig.passportApp.deserializeUser(mw.passportAppconfig.Account.deserializeUser());
 
+// the following hack is for all the projects to work
+mw.passportAppconfig.passportApp.serializeUser(function(user, done) {
+    console.log(user);
+    if (user.username) {
+        user.id = user.username;
+    }
+    done(null, user.id); //saved to session req.session.passport.user = {id:'..'}
+});
+
+mw.passportAppconfig.passportApp.deserializeUser(function(id, done) { //take req.session.passport.user and extract key (in this case id)
+    console.log(id);
+    //do something with the id to find data from database about a user
+    done(null, id); //user object attaches to the request as req.user
+});
 
 // registering mongoDB for its use in the local strategy
 
