@@ -63,6 +63,10 @@ var mw = require('./server/routes/middleware');
 
 auth_exer_app.use(mw.passportAppconfig.passportApp.initialize());
 auth_exer_app.use(mw.passportAppconfig.passportApp.session()); // persistent login sessions
+//about passport.session
+// It simply authenticates the session (which is populated by express.session())
+// passport.session() acts as a middleware to alter the req object and change the 'user' value that is currently the session id (from the client cookie) into the true deserialized user object.
+// (see deserialization below)
 
 var localStrategy = require('passport-local').Strategy;
 mw.passportAppconfig.passportApp.use(new localStrategy({
@@ -122,7 +126,7 @@ mw.passportAppconfig.passportApp.serializeUser(function(user, done) {
 });
 
 mw.passportAppconfig.passportApp.deserializeUser(function(id, done) { //take req.session.passport.user and extract key (in this case id)
-    console.log("After serialization, you enter into the DESERIALIZATION functionality.\nThis is the last step before leaving the authentication procedure.\nOnce you have validated and serialized the user, you can get an identifier from the serialized user to search additional data in your database, eg a username/id (" + id + ").\nWhen successful, this data goes to the redirected page of your choice after completing the authentication procedure attached to the request object as `req.user`.\nAgain, there are packages that offer a shipped functionality for your convenience.\nIn my example I am not searching anything and just passing a fake id directly.\n\n\n");
+    console.log("After serialization, you enter into the DESERIALIZATION functionality.\nThis is the last step before leaving the authentication procedure.\nOnce you have validated and serialized the user, you can get an identifier from the serialized user to search additional data in your database, eg a username/id (" + id + ").\nIt is important to know that you need something like passport.session() to get the `sid` to deserialize it into the `user` from the `req`.\nWhen successful, this data goes to the redirected page of your choice after completing the authentication procedure attached to the request object as `req.user`.\nAgain, there are packages that offer a shipped functionality for your convenience.\nIn my example I am not searching anything and just passing a fake id directly.\n\n\n");
     //do something with the id to find data from database about a user
     done(null, id); //user object attaches to the request as req.user
 });
