@@ -84,7 +84,7 @@ mw.passportAppconfig.passportApp.use(new twitterStrategy({
         callbackURL: config.twittercallback.callback
     },
     function(token, tokenSecret, profile, done) { //validation function
-        console.log("this user is correctly validated!!");
+        console.log("You are in the Twitter STRATEGY function.\nIf you are here it means that you reached the Twitter page through the callback you gave, and that you successfully gave authorization to use Twitter data.\nHowever, you might want to validate the Twitter records with those in your database, and create a new user if it doesn't exists.\nThis function is used to validate the user in the database comparing to records in the Twitter user's profile.\nFor this example I am not comparing: just creating a fake username ('whatever').\nThe validated user and profile and then passed to serialization/deserialization for its use in the app.\n\n\n");
         done(null, { 'username': 'whatever' });
         //var newUser = new SchemaObject({
         //    name: String
@@ -114,7 +114,7 @@ mw.passportAppconfig.passportApp.use(new twitterStrategy({
 
 // the following hack is for all the projects to work
 mw.passportAppconfig.passportApp.serializeUser(function(user, done) {
-    console.log(user);
+    console.log("If you are using sessions, you get into this SERIALIZATION function after validating the user.\nHere we got the validated data of our user " + user + ".\nThe serialization will attach a user identifier to a session cookie in the req (req.session.passport.user = {id:'..'}). Keep in mind that sessions are ALWAYS saved on the server side unless you pass them to client (OBS: passport.session does save into client as a cookie called `connect.sid`).\nYou need that value to make further requests.\nMy example is a simple custom function: there are packages that offer a shipped function you can use for your convenience, but they are hard to modify (eg. mongoose-passport-local package).\n\n\n");
     if (user.username) {
         user.id = user.username;
     }
@@ -122,7 +122,7 @@ mw.passportAppconfig.passportApp.serializeUser(function(user, done) {
 });
 
 mw.passportAppconfig.passportApp.deserializeUser(function(id, done) { //take req.session.passport.user and extract key (in this case id)
-    console.log(id);
+    console.log("After serialization, you enter into the DESERIALIZATION functionality.\nThis is the last step before leaving the authentication procedure.\nOnce you have validated and serialized the user, you can get an identifier from the serialized user to search additional data in your database, eg a username/id (" + id + ").\nWhen successful, this data goes to the redirected page of your choice after completing the authentication procedure attached to the request object as `req.user`.\nAgain, there are packages that offer a shipped functionality for your convenience.\nIn my example I am not searching anything and just passing a fake id directly.\n\n\n");
     //do something with the id to find data from database about a user
     done(null, id); //user object attaches to the request as req.user
 });
@@ -140,14 +140,6 @@ auth_exer_app.use('/', routes);
 //////////////////
 //*** TEST AREA ***//
 //////////////////
-
-// Redirect the user to Twitter for authentication.  When complete, Twitter
-// will redirect the user back to the application at
-//   /auth/twitter/callback
-auth_exer_app.get('/auth/twitter', //from here we call Twitter and set it on in the corresponding callback link
-    mw.passportAppconfig.passportApp.authenticate('twitter')
-);
-
 // Twitter will redirect the user to this URL after approval.  Finish the
 // authentication process by attempting to obtain an access token.  If
 // access was granted, the user will be logged in.  Otherwise,
@@ -161,16 +153,20 @@ auth_exer_app.get('/auth/twitter', //from here we call Twitter and set it on in 
 //  -- set web and callback using IP address for localhost instead of alias
 // 3) after that is verified, use the IP address instead of the alias to call the page from browser
 
+// Redirect the user to Twitter for authentication.  When complete, Twitter
+// will redirect the user back to the application at
+//   /auth/twitter/callback
+auth_exer_app.get('/auth/twitter', //from here we call Twitter and set it on in the corresponding callback link
+    mw.passportAppconfig.passportApp.authenticate('twitter')
+);
+
 //here is where authorization is asked; if the requirements for the authentication are available, it runs the Twitter Strategy callback function
 auth_exer_app.get('/request-token',
     mw.passportAppconfig.passportApp.authenticate('twitter', {
         'session': true,
         successRedirect: '/',
         failureRedirect: '/failure',
-    }),
-    function(res, req, next) {
-        console.log('OK redirect')
-    }
+    })
 );
 
 // The following errors are possible:
