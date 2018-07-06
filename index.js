@@ -6,6 +6,7 @@ var routes = require('./server/routes').routes;
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var FileStore = require('session-file-store')(session); //a pseudo db for saving sessions while in development
 var flash = require('connect-flash'); //required to use flash for messaging with node.js (see I will use it for passportJS success/failure messages)
 var multer = require('multer'); //middleware for handling multipart/form-data, which is primarily used for uploading file
 var upload = multer();
@@ -37,7 +38,17 @@ auth_exer_app.use(cookieParser());
 auth_exer_app.use(flash()); //MUST be set after cookies
 
 // sessions
-auth_exer_app.use(session({ secret: config.session.sessionSecret }));
+auth_exer_app.use(session({
+    secret: config.session.sessionSecret,
+    resave: false,
+    saveUninitialized: true,
+    store: new FileStore() //storing the session in FileStore, based on https://medium.com/@evangow/server-authentication-basics-express-sessions-passport-and-curl-359b7456003d
+}));
+// important!!! creating a new store will call nodemon every time we create a session, so we change to
+// ```
+// nodemon --ignore sessions/ dev
+// ```
+
 
 // for parsing application/json
 auth_exer_app.use(bodyParser.json());
@@ -182,6 +193,20 @@ auth_exer_app.get('/request-token',
 // - failed to find request token in session: again, all the previous connecting procedure are ok but you don't have a session available; check this link: https://stackoverflow.com/questions/11075629/passport-twitter-failed-to-find-request-token-in-session  
 // ---- mounting passport.session() into the application will help
 // ---- see also more about securing passport to work at: https://github.com/expressjs/session/issues/281#issuecomment-191327863
+
+
+// create the login get and post routes
+auth_exer_app.get('/login4', (req, res) => {
+    console.log('Inside GET /login callback function')
+    console.log(req.sessionID)
+    res.send(`You got the login page!\n`)
+})
+
+auth_exer_app.post('/login4', (req, res) => {
+    console.log('Inside POST /login callback function')
+    console.log(req.body)
+    res.send(`You posted to the login page!\n`)
+})
 
 
 /////////////////////
